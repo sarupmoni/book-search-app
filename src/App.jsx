@@ -10,13 +10,14 @@ class Input extends Component {
   }
 
   handleChange(event) {
-    this.setState({ value: event.target.value });
+    const newValue = event.target.value;
+    this.setState({ value: newValue });
+    this.props.onChange(newValue);
   }
 
   handleSubmit(event) {
     if (event.key === "Enter" && this.state.value) {
       this.props.addItem(this.state.value);
-      this.setState({ value: "" });
     }
   }
 
@@ -64,16 +65,47 @@ class BookCollection extends Component {
         { title: "To Kill a Mockingbird", author: "Harper Lee", year: 1960 },
         { title: "Pride and Prejudice", author: "Jane Austen", year: 1813 },
       ],
-      searchBooks: [],
+      searchBooks: [
+        { title: "Great Expectation", author: "Charles Dickens", year: 1860 },
+        { title: "War and Peace", author: "Leo Tolstoy", year: 1869 },
+        {
+          title: "The Great Gatsby",
+          author: "F. Scott Fitzgerald	",
+          year: 1925,
+        },
+        { title: "To Kill a Mockingbird", author: "Harper Lee", year: 1960 },
+        { title: "Pride and Prejudice", author: "Jane Austen", year: 1813 },
+      ],
     };
     this.addItem = this.addItem.bind(this);
+    this.onChange = this.onChange.bind(this);
   }
 
   addItem(value) {
+    const regex = new RegExp(value, "i");
     this.setState(({ books }) => {
-      const filteredBooks = books.filter((book) => book.title === value);
-      const searchBooks =
-        filteredBooks.length > 0 ? [...filteredBooks] : books;
+      const filteredBooks = books.filter((book) => {
+        const searchItem = book.title.toLowerCase();
+
+        return regex.test(searchItem);
+      });
+
+      const searchBooks = [...filteredBooks];
+
+      return { books, searchBooks };
+    });
+  }
+
+  onChange(value) {
+    const regex = new RegExp(value, "i");
+    this.setState(({ books }) => {
+      const filteredBooks = books.filter((book) => {
+        const searchItem = book.title.toLowerCase();
+
+        return regex.test(searchItem);
+      });
+
+      const searchBooks = value === "" ? books : [...filteredBooks];
 
       return { books, searchBooks };
     });
@@ -83,7 +115,7 @@ class BookCollection extends Component {
     return (
       <>
         <div className="search-box">
-          <Input addItem={this.addItem} />
+          <Input addItem={this.addItem} onChange={this.onChange} />
         </div>
         <div className="table-container">
           <h1>Book Collection</h1>
