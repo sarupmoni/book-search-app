@@ -6,7 +6,6 @@ class Input extends Component {
     super(props);
     this.state = { value: "" };
     this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   handleChange(event) {
@@ -15,21 +14,37 @@ class Input extends Component {
     this.props.onChange(newValue);
   }
 
-  handleSubmit(event) {
-    if (event.key === "Enter" && this.state.value) {
-      this.props.addItem(this.state.value);
-    }
-  }
-
   render() {
     return (
       <input
         type="text"
         value={this.state.value}
         onChange={this.handleChange}
-        onKeyDown={this.handleSubmit}
         placeholder="search..."
       />
+    );
+  }
+}
+
+class Select extends Component {
+  constructor(props) {
+    super(props);
+    this.handleSelect = this.handleSelect.bind(this);
+  }
+
+  handleSelect(event) {
+    this.props.onChange(event.target.value);
+  }
+
+  render() {
+    return (
+      <>
+        <select className="selector" onChange={this.handleSelect}>
+          <option value="title">Title</option>
+          <option value="author">Author</option>
+          <option value="year">Year</option>
+        </select>
+      </>
     );
   }
 }
@@ -53,69 +68,51 @@ class Table extends Component {
 class BookCollection extends Component {
   constructor(props) {
     super(props);
+    const books = [
+      { title: "Great Expectation", author: "Charles Dickens", year: "1860" },
+      { title: "War and Peace", author: "Leo Tolstoy", year: "1869" },
+      {
+        title: "The Great Gatsby",
+        author: "F. Scott Fitzgerald	",
+        year: "1925",
+      },
+      { title: "To Kill a Mockingbird", author: "Harper Lee", year: "1960" },
+      { title: "Pride and Prejudice", author: "Jane Austen", year: "1813" },
+    ];
     this.state = {
-      books: [
-        { title: "Great Expectation", author: "Charles Dickens", year: 1860 },
-        { title: "War and Peace", author: "Leo Tolstoy", year: 1869 },
-        {
-          title: "The Great Gatsby",
-          author: "F. Scott Fitzgerald	",
-          year: 1925,
-        },
-        { title: "To Kill a Mockingbird", author: "Harper Lee", year: 1960 },
-        { title: "Pride and Prejudice", author: "Jane Austen", year: 1813 },
-      ],
-      searchBooks: [
-        { title: "Great Expectation", author: "Charles Dickens", year: 1860 },
-        { title: "War and Peace", author: "Leo Tolstoy", year: 1869 },
-        {
-          title: "The Great Gatsby",
-          author: "F. Scott Fitzgerald	",
-          year: 1925,
-        },
-        { title: "To Kill a Mockingbird", author: "Harper Lee", year: 1960 },
-        { title: "Pride and Prejudice", author: "Jane Austen", year: 1813 },
-      ],
+      books,
+      searchBooks: [...books],
+      option: "title",
     };
-    this.addItem = this.addItem.bind(this);
     this.onChange = this.onChange.bind(this);
-  }
-
-  addItem(value) {
-    const regex = new RegExp(value, "i");
-    this.setState(({ books }) => {
-      const filteredBooks = books.filter((book) => {
-        const searchItem = book.title.toLowerCase();
-
-        return regex.test(searchItem);
-      });
-
-      const searchBooks = [...filteredBooks];
-
-      return { books, searchBooks };
-    });
+    this.onSelect = this.onSelect.bind(this);
   }
 
   onChange(value) {
     const regex = new RegExp(value, "i");
-    this.setState(({ books }) => {
+    this.setState(({ books, option }) => {
       const filteredBooks = books.filter((book) => {
-        const searchItem = book.title.toLowerCase();
+        const searchItem = book[option].toLowerCase();
 
         return regex.test(searchItem);
       });
 
       const searchBooks = value === "" ? books : [...filteredBooks];
 
-      return { books, searchBooks };
+      return { books, searchBooks, option };
     });
+  }
+
+  onSelect(option) {
+    this.setState((prev) => ({ ...prev, option }));
   }
 
   render() {
     return (
       <>
         <div className="search-box">
-          <Input addItem={this.addItem} onChange={this.onChange} />
+          <Input onChange={this.onChange} />
+          <Select onChange={this.onSelect} />
         </div>
         <div className="table-container">
           <h1>Book Collection</h1>
