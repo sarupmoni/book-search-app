@@ -55,11 +55,12 @@ class Table extends Component {
   }
 
   render() {
+    const { title, author, year } = this.props;
     return (
       <tr>
-        <td>{this.props.title}</td>
-        <td>{this.props.author}</td>
-        <td>{this.props.year}</td>
+        <td>{title}</td>
+        <td>{author}</td>
+        <td>{year}</td>
       </tr>
     );
   }
@@ -68,24 +69,27 @@ class Table extends Component {
 class BookCollection extends Component {
   constructor(props) {
     super(props);
-    const books = [
-      { title: "Great Expectation", author: "Charles Dickens", year: "1860" },
-      { title: "War and Peace", author: "Leo Tolstoy", year: "1869" },
-      {
-        title: "The Great Gatsby",
-        author: "F. Scott Fitzgerald	",
-        year: "1925",
-      },
-      { title: "To Kill a Mockingbird", author: "Harper Lee", year: "1960" },
-      { title: "Pride and Prejudice", author: "Jane Austen", year: "1813" },
-    ];
     this.state = {
-      books,
-      searchBooks: [...books],
+      books: [
+        { title: "Great Expectation", author: "Charles Dickens", year: "1860" },
+        { title: "War and Peace", author: "Leo Tolstoy", year: "1869" },
+        {
+          title: "The Great Gatsby",
+          author: "F. Scott Fitzgerald",
+          year: "1925",
+        },
+        { title: "To Kill a Mockingbird", author: "Harper Lee", year: "1960" },
+        { title: "Pride and Prejudice", author: "Jane Austen", year: "1813" },
+      ],
+      searchBooks: [],
       option: "title",
     };
     this.onChange = this.onChange.bind(this);
     this.onSelect = this.onSelect.bind(this);
+  }
+
+  componentDidMount() {
+    this.setState({ searchBooks: this.state.books });
   }
 
   onChange(value) {
@@ -97,14 +101,14 @@ class BookCollection extends Component {
         return regex.test(searchItem);
       });
 
-      const searchBooks = value === "" ? books : [...filteredBooks];
+      const searchBooks = value === "" ? books : filteredBooks;
 
-      return { books, searchBooks, option };
+      return { searchBooks };
     });
   }
 
   onSelect(option) {
-    this.setState((prev) => ({ ...prev, option }));
+    this.setState({ option });
   }
 
   render() {
